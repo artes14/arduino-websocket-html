@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Arduino and ESP32 Websocket</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+  <meta charset='UTF-8'>
+  <style>
+    body {
+      background-color: #E6D8D5;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>POTENTIOMETER : <span id='pot'>-</span></h1>
+  <h1>Received message : <span id='message'>-</span></h1><button type='button' id='BTN_1'>
+    <h1>ON</h1>
+  </button><button type='button' id='BTN_2'>
+    <h1>OFF</h1>
+  </button>
+</body>
+<script>
+  var Socket;
+  document.getElementById('BTN_1').addEventListener('click', button_1_pressed);
+  document.getElementById('BTN_2').addEventListener('click', button_2_pressed);
+  function init() {
+    Socket = new WebSocket('ws://' + window.location.hostname + ':81/');
+    Socket.onmessage = function(event) {
+      processCommand(event);
+    };
+  }
+  function processCommand(event) {
+    var obj = JSON.parse(event.data);
+    document.getElementById('message').innerHTML = obj.PIN_Status;
+    document.getElementById('pot').innerHTML = obj.pot;
+    console.log(obj.PIN_Status);
+    console.log(obj.pot);
+  }
+  function button_1_pressed() {
+    Socket.send('1');
+  }
+  function button_2_pressed() {
+    Socket.send('0');
+  }
+  window.onload = function(event) {
+    init();
+  }
+</script>
+</html>
